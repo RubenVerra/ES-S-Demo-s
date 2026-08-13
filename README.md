@@ -5,10 +5,10 @@ output and keyboard control over a serial terminal.
 Snake, Tetris, Space Invaders and Breakout, picked from a start menu, all
 running as 6502 machine code on a Zedboard.
 
-|                                 |                                 |                             |
-|---                              |---                              |---                          |
-| ![menu](docs/menu.png)          | ![snake](docs/snake.png)        | ![tetris](docs/tetris.png)  |
-| ![invaders](docs/invaders.png)  | ![breakout](docs/breakout.png)  |                             |
+|                                 			|                                 			|                             			|
+|---                              			|---                              			|---                          			|
+| ![menu](flex6502-console/docs/menu.png)          	| ![snake](flex6502-console/docs/snake.png)        	| ![tetris](flex6502-console/docs/tetris.png)  	|
+| ![invaders](flex6502-console/docs/invaders.png)  	| ![breakout](flex6502-console/docs/breakout.png)  	|                             			|
 
 ## Quick start
 ```bash
@@ -50,7 +50,7 @@ the monitor and timing are fine), **SW1** shows every non-zero screen byte as
 white (proves the CPU is writing to the framebuffer).
 
 ## How it works
-![systemarchitecture 6502 console](docs/systemarchitecture_6502_console.svg)
+![systemarchitecture 6502 console](flex6502-console/docs/systemarchitecture_6502_console.svg)
 
 The 6502 never touches VGA. It only writes tile codes into a 1 kB screen buffer
 at `0x0200`. A separate block continuously sends that buffer over an internal
