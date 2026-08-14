@@ -36,6 +36,7 @@ puts "INFO: wrote rtl/mem_path.vh -> $image"
 create_project -force $proj_name $build_dir -part $part_name
 
 set rtl_sources [list \
+    [file join $here rtl my_defines.v]             \
     [file join $here rtl flex6502.v]               \
     [file join $here rtl clock_generator.v]        \
     [file join $here rtl uart_rx.v]                \

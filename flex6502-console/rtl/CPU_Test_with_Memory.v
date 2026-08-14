@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "my_defines.v"
+
 module CPU_Test_with_Memory #(
     // Het pad naar het geheugenimage staat in snake_config.vh, niet hier.
     parameter CPU_DIVISOR   = 50,   // CPU-klok = 100 MHz / (CPU_DIVISOR * clk_coeff)
@@ -70,19 +72,42 @@ module CPU_Test_with_Memory #(
     wire [7:0]  db_out_rtl;
     wire [7:0]  db_in;
 
-    flex6502 my_dut_rtl (
-        .phi_1(phi_1), .phi_2(phi_2), .db_in(db_in),
-        .rdy(rdy), .rst(rst), .irq(irq), .nmi(nmi), .so(so),
-        .db_out(db_out_rtl), .ab(ab_rtl), .sync(sync_rtl), .read(read_rtl),
-        .test_inp(test_inp));
+    `ifdef test_mode
+        assign test_inp_inv = 1'b0;
+        flex6502 my_dut_rtl (
+            .phi_1(phi_1), .phi_2(phi_2), .db_in(db_in),
+            .rdy(rdy), .rst(rst), .irq(irq), .nmi(nmi), .so(so),
+            .db_out(db_out_rtl), .ab(ab_rtl), .sync(sync_rtl), .read(read_rtl),
+            .test_inp(1'b1));
+    `else
+        assign test_inp_inv = ~test_inp;
+        flex6502 my_dut_rtl (
+            .phi_1(phi_1), .phi_2(phi_2), .db_in(db_in),
+            .rdy(rdy), .rst(rst), .irq(irq), .nmi(nmi), .so(so),
+            .db_out(db_out_rtl), .ab(ab_rtl), .sync(sync_rtl), .read(read_rtl),
+            .test_inp(test_inp));
+    `endif
 
     //-----------------------------
     // signalen richting geheugen
     //-----------------------------
+    wire [15:0] ab      = ~ab_inv;
+    wire [7:0]  db_out  = ~db_out_inv;
+    wire        sync    = ~sync_inv;
+    wire        read_ch = ~read_inv;
+
+`ifdef sel_chip
+    wire [15:0] ab_mem   = ab;
+    wire        read_mem = read_ch;
+    wire        sync_mem = sync;
+    assign      db_out_mem = db_out;
+`else
     wire [15:0] ab_mem   = ab_rtl;
     wire        read_mem = read_rtl;
     wire        sync_mem = sync_rtl;
     assign      db_out_mem = db_out_rtl;
+`endif
+
     assign      ab_to_pins = ab_mem[7:0];
 
     assign db_in_inv    = ~db_in;
@@ -93,9 +118,15 @@ module CPU_Test_with_Memory #(
     assign rdy_inv      = ~rdy;
     assign phi_1_inv    = ~phi_1;
     assign phi_2_inv    = ~phi_2;
-    assign test_inp_inv = ~test_inp;
-
-    always @(posedge phi_1) out_compare <= 1'b0;
+    
+        
+    `ifdef cont_clk
+        always @(posedge phi_1) if (sync_mem) begin
+            out_compare <= (ab_mem == 16'h0648 && db_out_mem == 8'h03) ? 1'b1 : 1'b0;
+        end
+    `else
+        always @(posedge phi_1) out_compare <= 1'b0;
+    `endif
 
     wire       Rx_DV;
     wire [7:0] Rx_Byte;
