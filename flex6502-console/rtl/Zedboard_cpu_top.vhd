@@ -96,11 +96,12 @@ architecture Behavioral of zedboard_cpu_top is
 
 begin
 
-    ext_rst <= not btn_cpu_resetn; -- active low
+--    ext_rst <= not btn_cpu_resetn; -- active low
 
     CPU: CPU_Test_with_Memory port map(
         clock_master_100MHz => CLK100MHZ,
-        ext_rst             => ext_rst,
+--        ext_rst             => ext_rst,
+        ext_rst             => btn_cpu_resetn,
         ab_inv              => ab_inv,
         db_out_inv          => db_out_inv,
         sync_inv            => sync_inv,
